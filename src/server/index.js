@@ -8,38 +8,47 @@ const app = express()
 app.use(cors())
 var https = require('follow-redirects').https;
 var fs = require('fs');
-const text = "Main dishes were quite good, but desserts were too sweet for me."
-var options = {
-  'method': 'POST',
-  'hostname': 'api.meaningcloud.com',
-  'path': encodeURI(`/sentiment-2.1?key=${process.env.API_KEY}&lang=en&txt=${text}`),
-  'headers': {
-  },
-  'maxRedirects': 20
-};
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
-var req = https.request(options, function (res) {
-  var chunks = [];
 
-  res.on("data", function (chunk) {
-    chunks.push(chunk);
-  });
 
-  res.on("end", function (chunk) {
-    var body = Buffer.concat(chunks);
-    // console.log(body.toString());
-  });
+// const text = "Main dishes were quite good, but desserts were too sweet for me."
+// var options = {
+//   'method': 'POST',
+//   'hostname': 'api.meaningcloud.com',
+//   'path': encodeURI(`/sentiment-2.1?key=${process.env.API_KEY}&lang=en&txt=${text}`),
+//   'headers': {
+//   },
+//   'maxRedirects': 20
+// };
 
-  res.on("error", function (error) {
-    console.error(error);
-  });
-});
+// var req = https.request(options, function (res) {
+//   var chunks = [];
 
-req.end();
+//   res.on("data", function (chunk) {
+//     chunks.push(chunk);
+//   });
+
+//   res.on("end", function (chunk) {
+//     var body = Buffer.concat(chunks);
+//     // console.log(body.toString());
+//   });
+
+//   res.on("error", function (error) {
+//     console.error(error);
+//   });
+// });
+
+// req.end();
 
 app.post('/data', function (req, res) {
-  const text = req.body
-  console.log(text);
+  const {text} = req.body;
+  console.log(text)
+  fetch(`https://api.meaningcloud.com/sentiment-2.1?key=${process.env.API_KEY}&lang=en&txt=${text}`)
+  .then(data => data.json())
+  .then(json => res.send(json))
+  .catch(err => res.send(err));
 })
 
 // app.get('/get', (req, res) => {
