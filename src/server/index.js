@@ -2,9 +2,10 @@ var path = require('path')
 const express = require('express')
 const mockAPIResponse = require('./mockAPI.js')
 const dotenv = require('dotenv');
+const cors = require('cors')
 dotenv.config();
 const app = express()
-
+app.use(cors())
 var https = require('follow-redirects').https;
 var fs = require('fs');
 const text = "Main dishes were quite good, but desserts were too sweet for me."
@@ -26,7 +27,7 @@ var req = https.request(options, function (res) {
 
   res.on("end", function (chunk) {
     var body = Buffer.concat(chunks);
-    console.log(body.toString());
+    // console.log(body.toString());
   });
 
   res.on("error", function (error) {
@@ -36,17 +37,21 @@ var req = https.request(options, function (res) {
 
 req.end();
 
-app.get('/get', function (req, res) {
-  const text = req.body.text
-  console.log(text)
+app.post('/data', function (req, res) {
+  const text = req.body
+  console.log(text);
 })
+
+// app.get('/get', (req, res) => {
+//   return res.send()
+// })
 
 app.use(express.static('dist'))
 
 console.log(__dirname)
 
 app.get('/', function (req, res) {
-    res.sendFile('dist/index.html')
+   res.sendFile(path.resolve('dist/index.html'))
     // res.sendFile(path.resolve('src/client/views/index.html'))
 })
 
