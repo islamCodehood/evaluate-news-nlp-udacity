@@ -1,0 +1,22 @@
+form {
+    border-radius: 3px;
+    padding: 40px;
+    background-color: #fff;
+    &:hover {
+        box-shadow: #9e0303;
+    }
+}
+
+input {
+    padding: 5px 20px;
+    width: 100%;
+    line-height: 16px;
+    margin: 10px 0;
+    background: #F8F7F7;    
+    border: none;
+    
+}
+
+input[type="submit"] {
+    background: #F8F7F7;
+}
