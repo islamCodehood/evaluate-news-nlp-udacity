@@ -21,14 +21,23 @@ function handleSubmit(event) {
             .then(res => res.json())
             .then((res) => {
                 console.log(res)
-            //     const html = `
-            // <img class="result" src="${image}" alt="city image">
-            // <div class="result">${image}</div>
-            // `
-            //     //reset results
-            //     results.innerHTML = ""
-            //     //add new content
-            //     results.innerHTML = html
+                //     const html = `
+                // <img class="result" src="${image}" alt="city image">
+                // <div class="result">${image}</div>
+                // `
+                //     //reset results
+                //     results.innerHTML = ""
+                //     //add new content
+                //     results.innerHTML = html
+                const {image, weather} = res;
+                const img = document.getElementById('image')
+                img.src = image;
+                const highTemp = document.getElementById('highTemp')
+                highTemp.innerHTML = `High Temp: ${weather.highTemp}`;
+                const lowTemp = document.getElementById('lowTemp')
+                lowTemp.innerHTML = `Low Temp: ${weather.lowTemp}`;
+                const description = document.getElementById('description')
+                description.innerHTML = `Description: ${weather.description}`;
                 return res;
             }).catch(function (err) {
                 console.log(err)
@@ -37,7 +46,7 @@ function handleSubmit(event) {
     } else {
         alert("please enter a valid url")
     }
-    
+
 
 }
 

@@ -7,11 +7,14 @@ body {
 }
 
 main {
-    flex: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
 }
 
 section {
-    max-width: 800px;
+    max-width: 600px;
     margin: 50px auto;
 }
 
