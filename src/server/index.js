@@ -9,64 +9,84 @@ app.use(cors())
 var https = require('follow-redirects').https;
 var fs = require('fs');
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
+const getCoordinates = async (city) => {
+    const url = encodeURI(`http://api.geonames.org/searchJSON?style=full&maxRows=1&name_startsWith=${city}&username=${process.env.GEONAMES_USERNAME}`);
+    try {
+        const response = await fetch(url);
+        const json = await response.json();
+        console.log(json.geonames[0].lat)
+        return {
+            lat: json.geonames[0].lat,
+            lng: json.geonames[0].lng
+        };
+    } catch (error) {
+        console.log(error)
+    }
+}
 
+const getWeather = async (lat, lng, daysBeforeTravel) => {
+    try {
+        const url = encodeURI(`https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lng}&key=${process.env.WEATHERBIT_API_KEY}`);
+            const response = await fetch(url);
+            const json = await response.json();
+            console.log(json.data)
+            return json.data[0];
+        // if (daysBeforeTravel <= 7) {
+        //     const url = encodeURI(`https://api.weatherbit.io/v2.0/current?lat=${lat}&lon=${lng}&key=${process.env.WEATHERBIT_API_KEY}`);
+        //     const response = await fetch(url);
+        //     const json = await response.json();
+        //     return {high_temp: json.data[0].high_temp, low_temp: json.data[0].low_temp};
 
-// const text = "Main dishes were quite good, but desserts were too sweet for me."
-// var options = {
-//   'method': 'POST',
-//   'hostname': 'api.meaningcloud.com',
-//   'path': encodeURI(`/sentiment-2.1?key=${process.env.API_KEY}&lang=en&txt=${text}`),
-//   'headers': {
-//   },
-//   'maxRedirects': 20
-// };
+        // } else {
+        //     const url = encodeURI(`https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lng}&key=${process.env.WEATHERBIT_API_KEY}`);
+        //     const response = await fetch(url);
+        //     const json = await response.json();
+        //     console.log(json.data[0].high_temp)
 
-// var req = https.request(options, function (res) {
-//   var chunks = [];
+        //     return {high_temp: json.data[0].high_temp, low_temp: json.data[0].low_temp};
+        // }
+    } catch (error) {
+        console.log(error)
+    }
+    
+}
 
-//   res.on("data", function (chunk) {
-//     chunks.push(chunk);
-//   });
+const getCityImage = async (city) => {
+    const url = encodeURI(`https://pixabay.com/api/?key=${process.env.PIXABAY_API_KEY}&q=${city}&image_type=photo`);
+    try {
+        const response = await fetch(url);
+        const json = await response.json();
+        console.log(json.hits[0].webformatURL)
 
-//   res.on("end", function (chunk) {
-//     var body = Buffer.concat(chunks);
-//     // console.log(body.toString());
-//   });
+        return json.hits[0].webformatURL;
+    } catch (error) {
+        console.log(error)
+    }
+}
 
-//   res.on("error", function (error) {
-//     console.error(error);
-//   });
-// });
-
-// req.end();
-
-app.post('/data', function (req, res) {
-  const {text} = req.body;
-  console.log(text)
-  fetch(`https://api.meaningcloud.com/sentiment-2.1?key=${process.env.API_KEY}&lang=en&txt=${text}`)
-  .then(data => data.json())
-  .then(json => res.send(json))
-  .catch(err => res.send(err));
+app.post('/data',  async (req, res) => {
+    const { city, daysBeforeTravel } = req.body;
+    const coordinates = await getCoordinates(city)
+    const weather = await getWeather(coordinates.lat, coordinates.lng, daysBeforeTravel)
+    const image = await getCityImage(city)
+    console.log({ image, weather: {highTemp: weather.high_temp, lowTemp : weather.low_temp, description: weather.weather.description} })
+    return res.send({ image, weather: {highTemp: weather.high_temp, lowTemp : weather.low_temp, description: weather.weather.description} })
 })
-
-// app.get('/get', (req, res) => {
-//   return res.send()
-// })
 
 app.use(express.static('dist'))
 
 console.log(__dirname)
 
 app.get('/', function (req, res) {
-   res.sendFile(path.resolve('dist/index.html'))
+    res.sendFile(path.resolve('dist/index.html'))
     // res.sendFile(path.resolve('src/client/views/index.html'))
 })
 
 // designates what port the app will listen to for incoming requests
-app.listen(8080, function () {
-    console.log('Example app listening on port 8080!')
+app.listen(8030, function () {
+    console.log('Example app listening on port 8030!')
 })
 
 app.get('/test', function (req, res) {

@@ -1,36 +1,44 @@
+import { checkForName } from "./nameChecker";
+
 function handleSubmit(event) {
     event.preventDefault()
     const results = document.getElementById('results');
     // check what text was put into the form field
-    let formText = document.getElementById('name').value
-    Client.checkForName(formText)
-
-    fetch('http://localhost:8080/data', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            text: formText
+    let city = document.getElementById('city').value
+    const daysBeforeTravel = document.getElementById('date').value
+    console.log(checkForName(city))
+    if (Client.checkForName(city) !== null) {
+        fetch('http://localhost:8030/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                city,
+                daysBeforeTravel,
+            })
         })
-    })
-        .then(res => res.json())
-        .then((res) => {
-            console.log(res)
-            const { agreement, subjectivity, confidence, irony } = res;
-            const html = `
-        <div class="result">Agreement: ${agreement}</div>
-        <div class="result">Subjectivity: ${subjectivity}</div>
-        <div class="result">Confidence: ${confidence}</div>
-        <div class="result">Irony: ${irony}</div>
-        `
-        //reset results
-            results.innerHTML = ""
-            //add new content
-            results.innerHTML = html
-        }).catch(function (err) {
-            console.log(err)
-        });
+            .then(res => res.json())
+            .then((res) => {
+                console.log(res)
+            //     const html = `
+            // <img class="result" src="${image}" alt="city image">
+            // <div class="result">${image}</div>
+            // `
+            //     //reset results
+            //     results.innerHTML = ""
+            //     //add new content
+            //     results.innerHTML = html
+                return res;
+            }).catch(function (err) {
+                console.log(err)
+            });
+
+    } else {
+        alert("please enter a valid url")
+    }
+    
+
 }
 
 export { handleSubmit }
